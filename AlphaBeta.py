@@ -88,3 +88,52 @@ class MiniMax:
         end = time.perf_counter()
         return SearchResult(best_value, best_move, end - start_time, self.nodes_expanded)
     
+    def max_val(self, state, alpha, beta, depth):
+        """ 
+        Returns minimax value of given state assuming max'x turn to move
+        """
+        string = self.game.transposition_string(state)
+        if string in self.transposition_table:
+            return self.transposition_table[string]
+        elif self.game.is_terminal(state):
+            move = self.transposition_table[string]
+        elif self.game.cutoff_test(state, depth):
+            move = self.game.eval(state)
+
+        else:
+            move = -self.INF
+            self.nodes_expanded += 1
+            for action in self.game.actions(state):
+                value = self.__min_value(self.game.result(state, action), alpha, beta, depth+1)
+                if value > move:
+                    move = value
+                if move >= beta: 
+                    return move
+                alpha = max(alpha, move)
+            self.transposition_table[string] = move
+        return move
+        
+    def min_val(self, state, alpha, beta, depth):
+        """
+        Returns minimax value of given state assuming min's turn to move
+        """
+        string = self.game.transposition_string(state)
+        if string in self.transposition_table:
+            return self.transposition_table[string]
+        elif self.game.is_terminal(state):
+            move = self.transposition_table[string]
+        elif self.game.cutoff_test(state, depth):
+            move = self.game.eval(state)
+
+        else:
+            move = self.INF
+            self.nodes_expanded += 1
+            for action in self.game.actions(state):
+                value = self.__max_value(self.game.result(state, action), alpha, beta, depth+1)
+                if value < move:
+                    move = value
+                if move <= alpha:
+                    return move
+                beta = min(beta, move)
+            self.transposition_table[string] = move
+        return move
