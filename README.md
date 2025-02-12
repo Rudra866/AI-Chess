@@ -17,11 +17,11 @@ The Titan Hero must defeat all eight Lesser Titans to gather magical emblems tha
 
 ### Player One – Titan Hero
 - **Health:** Starts with **75 health points**.
-- **Starting Position:** A designated square (e.g., center-bottom).
+- **Starting Position:** A designated square in center bottom.
 
 ### Player Two – The Legion
-- **Lesser Titans (A–H):** Positioned in a symmetric or thematic arrangement across the board.
-- **Pantheon:** Placed at a key location (e.g., center-top) as the final objective.
+- **Lesser Titans (A–H):** Positioned in a symmetric arrangement across the board.
+- **Pantheon:** Placed at a key location (center top) as the final objective.
 
 ---
 
@@ -30,7 +30,7 @@ The Titan Hero must defeat all eight Lesser Titans to gather magical emblems tha
 ### Titan Hero (Player One)
 - **Range:** Can move up to **3 squares** per turn.
 - **Directions:** May move in any direction—including orthogonal and diagonal.
-- **Jumping:** Can “jump” over any pieces (allies or enemies); obstacles do not block movement.
+- **Jumping:** Can “jump” over any pieces; obstacles do not block movement.
 - **Restrictions:**
   - The Titan Hero **cannot land on the Pantheon** until all eight Lesser Titans have been defeated.
   - Landing on a square occupied by a Lesser Titan initiates combat (see Combat & Damage Mechanics).
@@ -74,13 +74,10 @@ The Titan Hero must defeat all eight Lesser Titans to gather magical emblems tha
 ### Titan Hero – Ground Smash
 - **Ability:** Once every **5 turns**, the Titan Hero can perform a **Ground Smash**.
 - **Effect:** Affects all enemy pieces in the immediately adjacent squares (up, down, left, right, and diagonally).
-- **Outcome:** Any enemy caught in the smash might be forced to retreat or suffer additional damage (optional variant for added tactical flair).
+- **Outcome:** Any enemy caught in the smash might be forced to retreat to initial position.
 
-### Lesser Titans’ Unique Traits (Optional)
-- Each Lesser Titan could have a slight bias in movement or a special “charge” attack when near the Titan Hero, representing their unique mythic origins.
-
-### Pantheon’s Mobility (Optional)
-- The Pantheon might occasionally “shift” to a neighboring square if not in direct combat, representing divine foresight.
+### Pantheon’s Mobility
+- The Pantheon will occasionally “shift” to a neighboring square if not in direct combat, representing divine foresight.
 
 ---
 
