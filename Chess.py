@@ -162,11 +162,9 @@ class Game(object):
 
     def actions(self, state):
         """ Returns all the legal actions in the given state.
-            
             :param state: a state object
             :return: a list of actions legal in the given state
         """
-   
         moves = []
         if state.maxs_turn:  # Titan Hero's turn.
             current_pos = state.positions['T']
@@ -191,6 +189,7 @@ class Game(object):
                         break  # Off-board, no need to check further in this direction.
         else:
             # Enemy's turn: For each enemy piece (Lesser Titans and Pantheon)
+            enemy_moves = []
             for piece in list(state.positions.keys()):
                 if piece in ['A','B','C','D','E','F','G','H','P']:
                     current_pos = state.positions[piece]
@@ -211,8 +210,12 @@ class Game(object):
                             if piece == 'P' and state.positions['T'] == (new_r, new_c):
                                 collision = True
                             if not collision:
-                                moves.append((piece, new_r, new_c))
+                                enemy_moves.append((piece, new_r, new_c))
+            # Randomize the order of enemy moves so that moves by lesser titans get a chance
+            rand.shuffle(enemy_moves)
+            moves.extend(enemy_moves)
         return moves
+
 
     def result(self, state, action):
         """ Return the state that results from the application of the
@@ -319,16 +322,72 @@ class Game(object):
 
     def eval(self, state):
         """
-            When a depth limit is applied, we need to evaluate the
-            given state to estimate who might win.
-            state: a legal game state
-            :return: a numeric value in the range of the utility function
+        A refined evaluation function that differentiates enemy piece types.
+        
+        Factors considered:
+        - Titan Hero's remaining life.
+        - Penalty for enemy pieces remaining.
+        - Average Manhattan distance from Titan Hero to lesser titans.
+        - Bonus for each collected emblem.
+        - Bonus for being close to the Pantheon if it's the only enemy left.
+        - Penalty if the Pantheon can shoot Titan Hero.
+        - **Extra penalty if Pantheon is moved away from its ideal position.**
         """
-     
-        # A simple evaluation could be:
-        # (Titan Hero's life) minus (10 * number of enemy pieces remaining)
-        enemy_count = sum(1 for p in state.positions if p in ['A','B','C','D','E','F','G','H','P'])
-        return state.life - 10 * enemy_count
+        # Weight constants (tweak these as needed)
+        LIFE_WEIGHT = 1.0                # per health point of Titan Hero
+        ENEMY_WEIGHT = 20.0              # penalty per enemy piece
+        DISTANCE_WEIGHT = 1.5            # penalty per unit of average distance from lesser titans
+        EMBLEM_WEIGHT = 5.0              # bonus per collected emblem
+        BONUS_CAPTURE_PANTHEON = 50.0    # bonus when only Pantheon remains and is close
+        DIVINE_SMITE_PENALTY = 15.0      # penalty if Pantheon can shoot Titan Hero
+        # NEW: Extra penalty parameters for Pantheon’s position
+        IDEAL_PANTHEON = (0, 3)
+        PANTHEON_MOVE_PENALTY = 40.0     # penalty multiplier per unit distance from ideal
+
+        hero_pos = state.positions['T']
+        total_enemy_count = 0
+        total_distance = 0
+        pantheon_distance = None
+
+        lesser_count = 0
+        for p, pos in state.positions.items():
+            if p in ['A','B','C','D','E','F','G','H']:
+                total_enemy_count += 1
+                lesser_count += 1
+                total_distance += abs(hero_pos[0] - pos[0]) + abs(hero_pos[1] - pos[1])
+            elif p == 'P':
+                total_enemy_count += 1
+                pantheon_distance = abs(hero_pos[0] - pos[0]) + abs(hero_pos[1] - pos[1])
+
+        avg_distance = (total_distance / lesser_count) if lesser_count > 0 else 0
+
+        # Start with Titan Hero's life.
+        score = LIFE_WEIGHT * state.life
+        # Penalize for enemy pieces remaining.
+        score -= ENEMY_WEIGHT * total_enemy_count
+        # Penalize based on average distance to lesser titans.
+        score -= DISTANCE_WEIGHT * avg_distance
+        # Bonus for collected emblems.
+        score += EMBLEM_WEIGHT * len(state.emblems)
+
+        # If only Pantheon remains, reward states where it's close.
+        if total_enemy_count == 1 and 'P' in state.positions and pantheon_distance is not None:
+            score += BONUS_CAPTURE_PANTHEON / (pantheon_distance + 1)
+
+        # Penalty if Pantheon can shoot Titan Hero.
+        if 'P' in state.positions and self.in_line_of_sight(state.positions['P'], hero_pos, state):
+            score -= DIVINE_SMITE_PENALTY
+
+        # NEW: Extra penalty if Pantheon is not at its ideal position.
+        if 'P' in state.positions:
+            current_pantheon = state.positions['P']
+            distance_from_ideal = abs(current_pantheon[0] - IDEAL_PANTHEON[0]) + abs(current_pantheon[1] - IDEAL_PANTHEON[1])
+            # The farther P is from the ideal position, the higher the penalty.
+            score -= PANTHEON_MOVE_PENALTY * distance_from_ideal
+
+        return score
+
+
 
 
     def congratulate(self, state):
