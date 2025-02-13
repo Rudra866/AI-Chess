@@ -4,12 +4,12 @@ import AlphaBeta as Computer
 import Chess as Game
 
 if len(sys.argv) <= 2:
-    print("Usage: python human_vs_machine.py <depth> <search>")
+    print("Usage: python human_vs_machine.py <side> <search>")
     print("Side T is for player to play Titan Hero , L is for player to play the Legion")
     print("Choosing a higher depth limit should make the computer player stronger")
     exit()
 
-side = sys.agrv[1]
+side = sys.argv[1]
 depth_lim = int(sys.argv[2])
 
 #Create game and initial state
@@ -20,9 +20,9 @@ state2 = game2.initial_state()
 
 if side == "T":
     current_player = Players.HumanInterface(game1)
-    other_player = Players.ComputerInt(game2, Computer.Minimax(game2))
+    other_player = Players.ComputerInt(game2, Computer.MiniMax(game2))
 else:
-    current_player = Players.VerboseComp(game1, Computer.Minimax(game1))
+    current_player = Players.VerboseComp(game1, Computer.MiniMax(game1))
     other_player = Players.HumanInterface(game2)
 
 current_game, other_game = game1, game2
@@ -42,38 +42,4 @@ while not current_game.is_terminal(state):
     current_player, current_game, other_player, other_game = other_player, other_game, current_player, current_game
 
 game1.congratulate(state)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

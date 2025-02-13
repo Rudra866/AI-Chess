@@ -64,7 +64,7 @@ class MiniMax:
         end = time.perf_counter()
         return SearchResult(best_value, best_move, end - start_time, self.nodes_expanded)
     
-    def choose_move_max(self, state):
+    def choose_move_min(self, state):
         """
         Returns best move for min in given state
         """
@@ -80,12 +80,19 @@ class MiniMax:
 
         self.nodes_expanded += 1
         for action in self.game.actions(state):
-            value = self.__max_value(self.game.result(state, action), alpha,beta,1)
+            value = self.max_val(self.game.result(state, action), alpha,beta,1)
             if value < best_value:
                 best_value = value
                 best_move = action
             beta = min(alpha, best_value)
         end = time.perf_counter()
+
+        if best_move is None:
+            legal_moves = self.game.actions(state)
+        if legal_moves:
+            best_move = legal_moves[0]
+        else:
+            raise ValueError("No legal moves available.")
         return SearchResult(best_value, best_move, end - start_time, self.nodes_expanded)
     
     def max_val(self, state, alpha, beta, depth):
@@ -104,7 +111,7 @@ class MiniMax:
             move = -self.INF
             self.nodes_expanded += 1
             for action in self.game.actions(state):
-                value = self.__min_value(self.game.result(state, action), alpha, beta, depth+1)
+                value = self.min_val(self.game.result(state, action), alpha, beta, depth+1)
                 if value > move:
                     move = value
                 if move >= beta: 
@@ -129,7 +136,7 @@ class MiniMax:
             move = self.INF
             self.nodes_expanded += 1
             for action in self.game.actions(state):
-                value = self.__max_value(self.game.result(state, action), alpha, beta, depth+1)
+                value = self.max_val(self.game.result(state, action), alpha, beta, depth+1)
                 if value < move:
                     move = value
                 if move <= alpha:
